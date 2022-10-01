@@ -4,8 +4,15 @@ import cryptocode
 
 sg.ChangeLookAndFeel("DarkGrey14")
 
+lay = [
+    [sg.Column([[sg.Text('Decrypted', pad=(0,0))]]),
+    sg.Column([[sg.Text('', size=(40,0))]]) ,
+    sg.Column([[sg.Text('Password') , sg.InputText(key='pass', password_char="*", pad=(0,0), size=(20,0))]])]
+]
+
 layout = [
-    [sg.Text('Decrypted', pad=0)],
+    [sg.Column(lay, pad=0)],
+    #[sg.Text('Decrypted', pad=(20,0)), sg.InputText(key='pass', password_char="*", pad=(150,0), size=(50,0))],
     [sg.Multiline(size=(50, 7), key='IODecrypted'), sg.Button('Encrypt', size=(10, 2),border_width=10, pad=45)],
     [sg.Text('Encrypted')],
     [sg.Multiline(size=(50, 7), key='IOEncrypted'), sg.Button('Decrypt', size=(10, 2),border_width=10, pad=45)],
@@ -27,39 +34,17 @@ window = sg.Window(
 window.bind('<Configure>', "Configure")
 
 def main():
-    event, values = window.read()
+    while True:
+        event, values = window.read()
+        if event == sg.WINDOW_CLOSED:
+            break
+        if event == 'Encrypt':
+            window['IOEncrypted'].update(value = cryptocode.encrypt(values.get('IODecrypted'), values.get('pass')))
+        if event == 'Decrypt':
+            window['IODecrypted'].update(value = cryptocode.decrypt(values.get('IOEncrypted'), values.get('pass')))
 
-    if event == 'Encrypt':
-        temp = copy.deepcopy(passLayout)
-        passWindow = sg.Window(
-            'Pass',
-            temp,
-        )
-        event, passValues = passWindow.read()
-        if event == 'Cancel':
-            passWindow.close()
-        if event == 'OK':
-            print(passValues.get('pass'))
-            print(values.get('IODecrypted'))
-            window['IOEncrypted'].update(value = cryptocode.encrypt(values.get('IODecrypted'), passValues.get('pass')))
-            passWindow.close()
-    if event == 'Decrypt':
-        temp = copy.deepcopy(passLayout)
-        passWindow = sg.Window(
-            'Pass',
-            temp,
-        )
-        event, passValues = passWindow.read()
-        if event == 'Cancel':
-            passWindow.close()
-        if event == 'OK':
-            print(passValues.get('pass'))
-            print(values.get('IOEncrypted'))
-            window['IODecrypted'].update(value = cryptocode.decrypt(values.get('IOEncrypted'), passValues.get('pass')))
-            passWindow.close()
-
-    if not (event == sg.WINDOW_CLOSED):
-        main()
+    
+    window.close()
 
 if __name__ == '__main__':
     main()
